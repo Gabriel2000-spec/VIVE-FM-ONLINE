@@ -231,7 +231,7 @@
         (function(){
             const counterEl = document.getElementById('visitorCounter');
             let visits = sessionStorage.getItem('visitCount') || 0;
-            visits = parseInt(visits, 50) + 1;
+            visits = parseInt(visits, 1000) + 1;
             sessionStorage.setItem('visitCount', visits);
             counterEl.textContent = `Visitantes en esta sesión: ${visits}`;
         })();
