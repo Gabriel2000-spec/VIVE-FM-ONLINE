@@ -1,64 +1,241 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="es">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VIVE FM ONLINE - Streaming</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;600&display=swap');
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #00ff88, #004d40);
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+  }
+  header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    margin: 0;
+    letter-spacing: 2px;
+  }
+  header p {
+    font-weight: 300;
+    font-size: 1.2rem;
+    margin-top: 5px;
+    color: #aaffcc;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
 
-<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Emisora vive fm online</title>
-<style type="text/css">
-body {
-	background-image: url(https://wallpapers.com/images/hd/blue-electronics-circuit-f3501csx4t8u2r6a.jpg);
-}
-body,td,th {
-	color: #FFF;
-}
+  .player-container {
+    background: rgba(0, 255, 136, 0.15);
+    border-radius: 20px;
+    box-shadow:
+      0 0 10px #00ff88,
+      inset 0 0 20px #00ff88;
+    backdrop-filter: blur(10px);
+    max-width: 360px;
+    padding: 20px 20px;
+    text-align: center;
+  }
+
+  .artist-image {
+    width: 50%;
+    border-radius: 100px;
+    box-shadow: 0 0 15px #00ff88;
+    margin-bottom: 25px;
+    transition: transform 1.3s ease;
+  }
+  .artist-image:hover {
+    transform: scale(1.05);
+  }
+
+  .song-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    margin: 0 0 8px 0;
+    text-shadow: 0 0 8px #00ff88;
+  }
+  .song-subtitle {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #aaffcc;
+    margin-bottom: 25px;
+  }
+
+  .progress-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 255, 136, 0.3);
+    border-radius: 3px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    box-shadow: 0 0 5px #00ff88;
+  }
+  .progress {
+    height: 100%;
+    background: #00ff88;
+    width: 0%;
+    border-radius: 3px;
+    transition: width 0.2s ease;
+  }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  .btn {
+    background: none;
+    border: none;
+    color: #00ff88;
+    cursor: pointer;
+    font-size: 2.5rem;
+    transition: color 0.3s ease;
+    text-shadow: 0 0 10px #00ff88;
+  }
+  .btn:hover {
+    color: #aaffcc;
+    text-shadow: 0 0 15px #aaffcc;
+  }
+  
+  
+  /* Contador */
+        .visitor-counter {
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            background: rgba(38, 166, 255, 0.3);
+            box-shadow: 0 0 12px #26a6ffaa;
+            margin-bottom: 2rem;
+            min-width: 190px;
+        }
 </style>
 </head>
-
 <body>
+    
+     <div class="visitor-counter" id="visitorCounter" aria-live="polite" aria-atomic="true">
+            Visitantes en esta sesión: 0
+        </div>
 
+<header>
+  <h1>VIVE FM ONLINE</h1>
+  <p>Siempre contigo</p>
+</header>
 
+<div class="player-container">
+    
+    
+    <img 
+  src="img/logo.jpg" 
+  alt="logo vive fm" 
+  class="artist-image"
+  width="50"
+  height="150"
+/>
 
-<div style="text-align:center;padding:1em 0;"> <h2><a style="text-decoration:none;" href="https://www.zeitverschiebung.net/es/city/3645532"><span style="color:yellow;">Hora actual en</span><br /></a></h2>
-<h2><font color="yellow">Venezuela-Ciudad Bolivar</font></h2>
-<iframe src="https://www.zeitverschiebung.net/clock-widget-iframe-v2?language=es&size=large&timezone=America%2FCaracas" width="100%" height="140" frameborder="0" seamless></iframe> </div>
-
-
-
-
-
-
-
-
-<center>
-
-
-<p>
   
-  <!-- Inicio. radio hosting USAstreams.com html5 player -->
-  <!-- Licencia: GRATIS-XDF4543ERF -->
-  <span style="text-align:center;padding:1em 0;"><img src="https://yt3.ggpht.com/71Hwtx1B-sQZxl9ytXNjcqBNtgGRH2wfubAp7sS6zWLpnC0-LzlJBT-wBmiU3I-AAwenTxp981aRlw=s160-c-fcrop64=1,11e40000ee1bffff-rw-nd-v1" width="110" height="107" /> </span>
-</p>
-<iframe name="contenedorPlayer" class="cuadroBordeado" allow="autoplay" width="270px" height="80px" marginwidth=0 marginheight=0 hspace=0 vspace=0 frameborder=0 scrolling=no  src="https://cp.usastreams.com/html5PlayerGratis.aspx?stream=https://stream.zeno.fm/dcn6brncfg8uv&fondo=05&formato=mp3&color=14&titulo=2&autoStart=1&vol=10&nombre=Radio+TOP40&imagen=https://cp.usastreams.com/playerHTML5/img/equalizer1.gif"></iframe>
+  <h2 class="song-title">En vivo</h2>
+  <p class="song-subtitle">Al aire</p>
 
-  <!-- En players responsive puede modificar el weight a sus necesidades, Por favor no modifique el resto del codigo para poder seguir ofreciendo este servicio gratis  -->
-  <!-- Fin. USAstreams.com html5 player -->
-  
-<p>&nbsp;</p>
+  <div class="progress-container" id="progress-container">
+    <div class="progress" id="progress"></div>
+  </div>
 
-<h3> <font color="yellow">Ciudad Bolivar Venezuela</font>
-</h3>
-<h3><font color="yellow">Emisora Cristiana 24 horas full musicaA </font> </h3>
-<p>
-  
-  
-  
-  
-  
-</center>
+  <div class="controls">
+    <button id="prev" class="btn" aria-label="Anterior">&#9664;&#9664;</button>
+    <button id="play" class="btn" aria-label="Play/Pause">&#9654;</button>
+    <button id="next" class="btn" aria-label="Siguiente">&#9654;&#9654;</button>
+  </div>
 
+  <audio id="audio" src="https://stream.zeno.fm/ctv5k5brgpfvv" preload="metadata"></audio>
+</div>
+
+
+
+
+<script>
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('play');
+  const progress = document.getElementById('progress');
+  const progressContainer = document.getElementById('progress-container');
+
+  let isPlaying = false;
+
+  // Toggle play/pause
+  function togglePlay() {
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+  }
+
+  // Update play button icon
+  audio.addEventListener('play', () => {
+    isPlaying = true;
+    playBtn.innerHTML = '&#10073;&#10073;'; // pause icon
+  });
+
+  audio.addEventListener('pause', () => {
+    isPlaying = false;
+    playBtn.innerHTML = '&#9654;'; // play icon
+  });
+
+  playBtn.addEventListener('click', togglePlay);
+
+  // Update progress bar
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration) {
+      const progressPercent = (audio.currentTime / audio.duration) * 100;
+      progress.style.width = progressPercent + '%';
+    }
+  });
+
+  // Set audio time to click position on progress bar
+  progressContainer.addEventListener('click', (e) => {
+    const width = progressContainer.clientWidth;
+    const clickX = e.offsetX;
+    const duration = audio.duration;
+
+    if (duration) {
+      audio.currentTime = (clickX / width) * duration;
+    }
+  });
+
+  // For streaming radios, the duration might be infinite or not available.
+  // So progress bar might not work fully for live streams.
+  // You can remove progress bar or adapt if needed.
+  
+  
+  
+  // Contador de visitantes por sesión usando sessionStorage
+        (function(){
+            const counterEl = document.getElementById('visitorCounter');
+            let visits = sessionStorage.getItem('visitCount') || 0;
+            visits = parseInt(visits, 10) + 1;
+            sessionStorage.setItem('visitCount', visits);
+            counterEl.textContent = `Visitantes en esta sesión: ${visits}`;
+        })();
+</script>
 
 
 
