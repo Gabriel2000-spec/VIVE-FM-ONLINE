@@ -176,16 +176,97 @@
     font-size: 0.9rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+  
+  #digitalClock {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ff0057;
+  text-shadow: 0 0 10px #ff0057;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+#onAirFixed {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #b00000; /* rojo fuerte serio */
+  background-color: rgba(255, 0, 0, 0.1); /* sutil fondo rojo */
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(176, 0, 0, 0.6);
+  user-select: none;
+  z-index: 10000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  animation: blinkFixed 1.5s infinite;
+}
+
+@keyframes blinkFixed {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+
+.whatsapp-button {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #25D366; /* verde WhatsApp */
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 4px 25px;
+  border-radius: 50px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.7);
+  transition: background-color 0.3s ease;
+  user-select: none;
+  z-index: 10000;
+}
+
+.whatsapp-button:hover {
+  background-color: #1ebe57;
+}
+
+
   </style>
 </head>
 <body>
+    
+    <div id="onAirFixed" aria-live="assertive" role="alert">AL AIRE</div>
+    
     
     <div class="radio-profile" title="Radio Vive FM Online">
   <img src="img/vivefm.jpg" alt="Radio Vive FM Online" />
 </div>
 
+
+
+
   <div class="container">
     <h1>VIVE FM ONLINE</h1>
+    
+    <div id="digitalClock" aria-label="Reloj digital" role="timer"></div>
+    
     <p>Tu música favorita en vivo 24/7</p>
 
     <audio id="radioPlayer" preload="none">
@@ -259,6 +340,27 @@
       const seekPercent = clickX / width;
       radioPlayer.currentTime = seekPercent * radioPlayer.duration;
     });
+    
+    function updateClock() {
+  const clock = document.getElementById('digitalClock');
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  clock.textContent = `${hours}:${minutes}:${seconds}`;
+}
+
+setInterval(updateClock, 1000);
+updateClock(); // para mostrar la hora al cargar
+
   </script>
+  
+  <a href="https://chat.whatsapp.com/JLIjsB9t6VG70JwjL5A0ai?mode=ac_t" target="_blank" rel="noopener" class="whatsapp-button" aria-label="Únete al grupo de WhatsApp de Vive FM Online">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="white" aria-hidden="true" focusable="<!--  -->false">
+    <path d="M20.52 3.48A11.82 11.82 0 0012 0C5.37 0 0 5.37 0 12a11.9 11.9 0 001.67 6L0 24l6-1.67A11.92 11.92 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.19-3.48-8.52zM12 21c-2.11 0-4.07-.7-5.63-1.9l-.4-.26-3.54.99.99-3.54-.26-.4A9.01 9.01 0 013 12c0-4.97 4.03-9 9-9s9 4.03 9 9-4.03 9-9 9zm5.26-6.92c-.28-.14-1.66-.82-1.92-.91-.26-.09-.45-.14-.64.14s-.73.9-.9 1.08c-.17.18-.34.2-.63.07-.28-.14-1.18-.43-2.25-1.39-.83-.74-1.39-1.65-1.56-1.93-.16-.28-.02-.43.12-.57.12-.12.28-.3.43-.45.14-.14.19-.25.28-.43.09-.17.05-.31-.02-.45-.07-.14-.63-1.52-.86-2.08-.23-.55-.46-.48-.64-.49-.17-.01-.37-.01-.56-.01-.19 0-.5.07-.76.37-.26.3-1 1-1 2.43s1.02 2.82 1.17 3.02c.14.19 2.02 3.08 4.9 4.32.68.29 1.21.46 1.62.59.68.22 1.3.19 1.79.12.55-.08 1.66-.68 1.9-1.34.24-.67.24-1.25.17-1.38-.07-.12-.26-.19-.54-.33z"/>
+  </svg>
+  Únete a WhatsApp
+</a>
+
 </body>
 </html>
