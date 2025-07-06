@@ -1,244 +1,264 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>VIVE FM ONLINE - Streaming</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;600&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>vive fm online| Venezuela</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-  * {
+    body, html {
+      height: 100%;
+      background: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 15px;
+      max-width: 400px;
+      width: 100%;
+      padding: 30px;
+      box-shadow: 0 8px 16px rgba(255, 0, 150, 0.7);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      color: #ff0057;
+      text-shadow: 0 0 10px #ff0057;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 25px;
+      color: #ff69b4;
+      text-shadow: 0 0 8px #ff69b4;
+    }
+
+    /* Ocultar reproductor nativo */
+    audio {
+      display: none;
+    }
+
+    /* Contenedor del reproductor personalizado */
+    .custom-player {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #222;
+      padding: 10px 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px #ff0057;
+      user-select: none;
+    }
+
+    /* Botón play/pausa */
+    #playPauseBtn {
+      background: linear-gradient(45deg, #ff0057, #ff69b4);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.8rem;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 10px #ff0057;
+      transition: background 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #playPauseBtn:hover {
+      background: linear-gradient(45deg, #e6004c, #ff4da6);
+      box-shadow: 0 6px 15px #e6004c;
+    }
+
+    /* Barra de progreso */
+    .progress-container {
+      flex: 1;
+      height: 8px;
+      background: #444;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: inset 0 0 5px #ff0057;
+    }
+
+    #progressBar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff0057, #ff69b4);
+      width: 0%;
+      transition: width 0.2s ease;
+      border-radius: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        max-width: 90%;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      #playPauseBtn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.5rem;
+      }
+    }
+    
+    
+    .radio-profile {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 10px #ff0057;
+  cursor: pointer;
+  background: #222;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+.radio-profile:hover {
+  transform: scale(1.1);
+}
+
+.radio-profile img {
+  width: 130%;
+  height: 130%;
+  object-fit: contain;
+}
+
+
+
+  footer {
+    width: 100%;
+    padding: 0px 100px;
+    background-color: #222;
+    color: #fff;
+    position: fixed;
+    bottom: 0;
+    right: 0;
     box-sizing: border-box;
   }
-  body {
+
+  footer p {
     margin: 0;
-    background: linear-gradient(135deg, #00ff88, #004d40);
-    font-family: 'Poppins', sans-serif;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    justify-content: center;
-    align-items: center;
-    padding: 0px;
+    text-align: right;
+    font-size: 0.9rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
-  header {
-    text-align: center;
-    margin-bottom: 40px;
-    text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
-  }
-  header h1 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 3rem;
-    margin: 0;
-    letter-spacing: 2px;
-  }
-  header p {
-    font-weight: 300;
-    font-size: 1.2rem;
-    margin-top: 5px;
-    color: #aaffcc;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-  }
-
-  .player-container {
-    background: rgba(0, 255, 136, 0.15);
-    border-radius: 20px;
-    box-shadow:
-      0 0 10px #00ff88,
-      inset 0 0 20px #00ff88;
-    backdrop-filter: blur(10px);
-    max-width: 360px;
-    padding: 20px 20px;
-    text-align: center;
-  }
-
-  .artist-image {
-    width: 50%;
-    border-radius: 100px;
-    box-shadow: 0 0 15px #00ff88;
-    margin-bottom: 25px;
-    transition: transform 1.3s ease;
-  }
-  .artist-image:hover {
-    transform: scale(1.05);
-  }
-
-  .song-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.8rem;
-    margin: 0 0 8px 0;
-    text-shadow: 0 0 8px #00ff88;
-  }
-  .song-subtitle {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: #aaffcc;
-    margin-bottom: 25px;
-  }
-
-  .progress-container {
-    width: 100%;
-    height: 6px;
-    background: rgba(0, 255, 136, 0.3);
-    border-radius: 3px;
-    cursor: pointer;
-    margin-bottom: 20px;
-    box-shadow: 0 0 5px #00ff88;
-  }
-  .progress {
-    height: 100%;
-    background: #00ff88;
-    width: 0%;
-    border-radius: 3px;
-    transition: width 0.2s ease;
-  }
-
-  .controls {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-  }
-  .btn {
-    background: none;
-    border: none;
-    color: #00ff88;
-    cursor: pointer;
-    font-size: 2.5rem;
-    transition: color 0.3s ease;
-    text-shadow: 0 0 10px #00ff88;
-  }
-  .btn:hover {
-    color: #aaffcc;
-    text-shadow: 0 0 15px #aaffcc;
-  }
-  
-  
-  /* Contador */
-        .visitor-counter {
-            font-weight: 600;
-            font-size: 1.1rem;
-            padding: 0.5rem 1.2rem;
-            border-radius: 25px;
-            background: rgba(38, 166, 255, 0.3);
-            box-shadow: 0 0 12px #26a6ffaa;
-            margin-bottom: 2rem;
-            min-width: 190px;
-        }
-</style>
+  </style>
 </head>
 <body>
     
-     <div class="visitor-counter" id="visitorCounter" aria-live="polite" aria-atomic="true">
-            Visitantes en esta sesión: 0
-        </div>
-
-<header>
-  <h1>VIVE FM ONLINE</h1>
-  <p>Siempre contigo</p>
-</header>
-
-<div class="player-container">
-    
-    
-    <img 
-  src="img/logo.jpg" 
-  alt="logo vive fm" 
-  class="artist-image"
-  width="50"
-  height="150"
-/>
-
-  
-  <h2 class="song-title">En vivo</h2>
-  <p class="song-subtitle">Al aire</p>
-
-  <div class="progress-container" id="progress-container">
-    <div class="progress" id="progress"></div>
-  </div>
-
-  <div class="controls">
-    <button id="prev" class="btn" aria-label="Anterior">&#9664;&#9664;</button>
-    <button id="play" class="btn" aria-label="Play/Pause">&#9654;</button>
-    <button id="next" class="btn" aria-label="Siguiente">&#9654;&#9654;</button>
-  </div>
-
-  <audio id="audio" src="https://stream.zeno.fm/ctv5k5brgpfvv" preload="metadata"></audio>
+    <div class="radio-profile" title="Radio Vive FM Online">
+  <img src="img/vivefm.jpg" alt="Radio Vive FM Online" />
 </div>
 
+  <div class="container">
+    <h1>VIVE FM ONLINE</h1>
+    <p>Tu música favorita en vivo 24/7</p>
 
+    <audio id="radioPlayer" preload="none">
+      <!-- Cambia la URL aquí por la de tu streaming -->
+      <source src="https://stream.zeno.fm/ctv5k5brgpfvv" type="audio/mpeg" />
+      Tu navegador no soporta el elemento de audio.
+    </audio>
 
+    <div class="custom-player" role="region" aria-label="Reproductor de radio">
+      <button id="playPauseBtn" aria-label="Reproducir/Pausar">▶️</button>
+      <div class="progress-container" aria-label="Barra de progreso de reproducción">
+        <div id="progressBar"></div>
+      </div>
+    </div>   
+  </div>
 
-<script>
-  const audio = document.getElementById('audio');
-  const playBtn = document.getElementById('play');
-  const progress = document.getElementById('progress');
-  const progressContainer = document.getElementById('progress-container');
+<footer>
+  <p>© Derecho al Autor 2025</p>
+</footer>
 
-  let isPlaying = false;
+  <script>
+    const radioPlayer = document.getElementById('radioPlayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressContainer = document.querySelector('.progress-container');
 
-  // Toggle play/pause
-  function togglePlay() {
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
+    playPauseBtn.addEventListener('click', () => {
+      if (radioPlayer.paused) {
+        radioPlayer.play();
+        playPauseBtn.textContent = '⏸️';
+      } else {
+        radioPlayer.pause();
+        playPauseBtn.textContent = '▶️';
+      }
+    });
+
+    radioPlayer.addEventListener('playing', () => {
+      playPauseBtn.textContent = '⏸️';
+    });
+
+    radioPlayer.addEventListener('pause', () => {
+      playPauseBtn.textContent = '▶️';
+    });
+
+    // Para streaming en vivo, simulamos barra animada
+    let animationFrame;
+
+    function animateProgress() {
+      let width = parseFloat(progressBar.style.width) || 0;
+      width += 0.5;
+      if (width > 100) width = 0;
+      progressBar.style.width = width + '%';
+      animationFrame = requestAnimationFrame(animateProgress);
     }
-  }
 
-  // Update play button icon
-  audio.addEventListener('play', () => {
-    isPlaying = true;
-    playBtn.innerHTML = '&#10073;&#10073;'; // pause icon
-  });
+    radioPlayer.addEventListener('play', () => {
+      animateProgress();
+    });
 
-  audio.addEventListener('pause', () => {
-    isPlaying = false;
-    playBtn.innerHTML = '&#9654;'; // play icon
-  });
+    radioPlayer.addEventListener('pause', () => {
+      cancelAnimationFrame(animationFrame);
+      progressBar.style.width = '0%';
+    });
 
-  playBtn.addEventListener('click', togglePlay);
-
-  // Update progress bar
-  audio.addEventListener('timeupdate', () => {
-    if (audio.duration) {
-      const progressPercent = (audio.currentTime / audio.duration) * 100;
-      progress.style.width = progressPercent + '%';
-    }
-  });
-
-  // Set audio time to click position on progress bar
-  progressContainer.addEventListener('click', (e) => {
-    const width = progressContainer.clientWidth;
-    const clickX = e.offsetX;
-    const duration = audio.duration;
-
-    if (duration) {
-      audio.currentTime = (clickX / width) * duration;
-    }
-  });
-
-  // For streaming radios, the duration might be infinite or not available.
-  // So progress bar might not work fully for live streams.
-  // You can remove progress bar or adapt if needed.
-  
-  
-  
-  // Contador de visitantes por sesión usando sessionStorage
-        (function(){
-            const counterEl = document.getElementById('visitorCounter');
-            let visits = sessionStorage.getItem('visitCount') || 0;
-            visits = parseInt(visits, 1000) + 1;
-            sessionStorage.setItem('visitCount', visits);
-            counterEl.textContent = `Visitantes en esta sesión: ${visits}`;
-        })();
-</script>
-
-
-
-
+    // Click en barra para intentar saltar (no funcional en streaming en vivo)
+    progressContainer.addEventListener('click', (e) => {
+      if (!radioPlayer.duration) return;
+      const rect = progressContainer.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const width = rect.width;
+      const seekPercent = clickX / width;
+      radioPlayer.currentTime = seekPercent * radioPlayer.duration;
+    });
+  </script>
 </body>
 </html>
