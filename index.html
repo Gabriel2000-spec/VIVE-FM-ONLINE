@@ -1,366 +1,462 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>vive fm online| Venezuela</title>
-  <style>
-    /* Reset básico */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VIVE FM Online - Emisora Streaming</title>
+<style>
+  /* Reset básico */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background-color: rgba(0,0,0,0.4);
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #clock {
+    font-weight: 700;
+    font-size: 1.2rem;
+    font-family: "Courier New", Courier, monospace;
+  }
+  main {
+    flex: 1;
+    padding: 20px;
+    max-width: 720px;
+    margin: 0 auto 0 auto;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
 
-    body, html {
-      height: 100%;
-      background: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
-      background-size: cover;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+  /* NUEVO REPRODUCTOR */
+  #player {
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 0;
+    margin-bottom: 30px;
+    box-shadow: 0 0 20px #000;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  #player-screen {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    background: url('https://images.unsplash.com/photo-1464375117522-1311f0e8e8e0?auto=format&fit=crop&w=720&q=80') center center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+    box-shadow: inset 0 0 80px rgba(0,0,0,0.8);
+  }
+  #player-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    pointer-events: none;
+  }
+  #player-screen > div {
+    position: relative;
+    z-index: 2;
+  }
+  #station-name {
+    font-size: 2.4rem;
+    font-weight: 900;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+    user-select: none;
+  }
+  /* Controles */
+  #player-controls {
+    background: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 20px;
+    gap: 15px;
+  }
 
-    .container {
-      background: rgba(0, 0, 0, 0.7);
-      border-radius: 15px;
-      max-width: 400px;
-      width: 100%;
-      padding: 30px;
-      box-shadow: 0 8px 16px rgba(255, 0, 150, 0.7);
-      text-align: center;
-    }
+  /* Botones */
+  #buttons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+  }
+  button.control-btn {
+    background-color: #ff4b2b;
+    border: none;
+    color: white;
+    font-size: 1.6rem;
+    padding: 12px 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255,75,43,0.7);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+  }
+  button.control-btn:hover:not(:disabled) {
+    background-color: #e03e22;
+    transform: scale(1.1);
+  }
+  button.control-btn:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  button.control-btn svg {
+    width: 26px;
+    height: 26px;
+  }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 15px;
-      color: #ff0057;
-      text-shadow: 0 0 10px #ff0057;
-    }
+  /* Barra progreso y volumen igual ancho */
+  #seekBar, #volumeBar {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    max-width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #555;
+    outline: none;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5) inset;
+  }
+  #seekBar::-webkit-slider-thumb,
+  #volumeBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ff4b2b;
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(255,75,43,0.8);
+    transition: background-color 0.3s ease;
+    border: none;
+    margin-top: -5px;
+  }
+  #seekBar::-moz-range-thumb,
+  #volumeBar::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ff4b2b;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 6px rgba(255,75,43,0.8);
+    transition: background-color 0.3s ease;
+  }
 
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 25px;
-      color: #ff69b4;
-      text-shadow: 0 0 8px #ff69b4;
+  /* Formulario */
+  form {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  }
+  form h2 {
+    margin-bottom: 15px;
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 1px 1px 2px #000;
+  }
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  select, input[type="text"], input[type="tel"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+  }
+  textarea {
+    min-height: 80px;
+  }
+  input[type="submit"] {
+    background-color: #ff4b2b;
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 12px 0;
+    border-radius: 8px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  input[type="submit"]:hover {
+    background-color: #e03e22;
+  }
+  #confirmation {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.7);
+  }
+  #confirmation p {
+    margin-bottom: 20px;
+  }
+  #confirmation button {
+    background-color: #0078d7;
+    border: none;
+    color: white;
+    padding: 10px 18px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  #confirmation button:hover {
+    background-color: #005ea2;
+  }
+  footer {
+    background-color: rgba(0,0,0,0.5);
+    text-align: center;
+    padding: 15px 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+    margin-top: auto;
+    user-select: none;
+  }
+  @media (max-width: 480px) {
+    #player-screen {
+      height: 220px;
+      padding: 15px;
     }
-
-    /* Ocultar reproductor nativo */
-    audio {
-      display: none;
+    #station-name {
+      font-size: 1.6rem;
     }
-
-    /* Contenedor del reproductor personalizado */
-    .custom-player {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      background: #222;
-      padding: 10px 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px #ff0057;
-      user-select: none;
+    #buttons {
+      gap: 20px;
     }
-
-    /* Botón play/pausa */
-    #playPauseBtn {
-      background: linear-gradient(45deg, #ff0057, #ff69b4);
-      border: none;
-      border-radius: 50%;
+    button.control-btn {
       width: 50px;
       height: 50px;
-      font-size: 1.8rem;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 10px #ff0057;
-      transition: background 0.3s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-size: 1.3rem;
     }
-
-    #playPauseBtn:hover {
-      background: linear-gradient(45deg, #e6004c, #ff4da6);
-      box-shadow: 0 6px 15px #e6004c;
-    }
-
-    /* Barra de progreso */
-    .progress-container {
-      flex: 1;
-      height: 8px;
-      background: #444;
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      box-shadow: inset 0 0 5px #ff0057;
-    }
-
-    #progressBar {
-      height: 100%;
-      background: linear-gradient(90deg, #ff0057, #ff69b4);
-      width: 0%;
-      transition: width 0.2s ease;
-      border-radius: 10px;
-    }
-
-    /* Responsive */
-    @media (max-width: 480px) {
-      .container {
-        max-width: 90%;
-        padding: 20px;
-      }
-
-      h1 {
-        font-size: 2rem;
-      }
-
-      p {
-        font-size: 1rem;
-      }
-
-      #playPauseBtn {
-        width: 45px;
-        height: 45px;
-        font-size: 1.5rem;
-      }
-    }
-    
-    
-    .radio-profile {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow: 0 0 10px #ff0057;
-  cursor: pointer;
-  background: #222;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  transition: transform 0.3s ease;
-}
-
-.radio-profile:hover {
-  transform: scale(1.1);
-}
-
-.radio-profile img {
-  width: 130%;
-  height: 130%;
-  object-fit: contain;
-}
-
-
-
-  footer {
-    width: 100%;
-    padding: 0px 100px;
-    background-color: #222;
-    color: #fff;
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    box-sizing: border-box;
   }
-
-  footer p {
-    margin: 0;
-    text-align: right;
-    font-size: 0.9rem;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  #digitalClock {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #ff0057;
-  text-shadow: 0 0 10px #ff0057;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 10px 20px;
-  border-radius: 15px;
-  margin-bottom: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  user-select: none;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-#onAirFixed {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  font-weight: 700;
-  font-size: 1.8rem;
-  color: #b00000; /* rojo fuerte serio */
-  background-color: rgba(255, 0, 0, 0.1); /* sutil fondo rojo */
-  padding: 8px 16px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(176, 0, 0, 0.6);
-  user-select: none;
-  z-index: 10000;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-  animation: blinkFixed 1.5s infinite;
-}
-
-@keyframes blinkFixed {
-  0%, 50%, 100% {
-    opacity: 1;
-  }
-  25%, 75% {
-    opacity: 0;
-  }
-}
-
-
-.whatsapp-button {
-  position: fixed;
-  bottom: 70px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #25D366; /* verde WhatsApp */
-  color: white;
-  font-weight: 700;
-  font-size: 1.2rem;
-  padding: 4px 25px;
-  border-radius: 50px;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.7);
-  transition: background-color 0.3s ease;
-  user-select: none;
-  z-index: 10000;
-}
-
-.whatsapp-button:hover {
-  background-color: #1ebe57;
-}
-
-
-  </style>
+</style>
 </head>
 <body>
-    
-    <div id="onAirFixed" aria-live="assertive" role="alert">AL AIRE</div>
-    
-    
-    <div class="radio-profile" title="Radio Vive FM Online">
-  <img src="img/logo.jpg" alt="Radio Vive FM Online" />
-</div>
 
+<header>
+  <div>VIVE FM Online</div>
+  <div id="clock">00:00:00</div>
+</header>
 
-
-
-  <div class="container">
-    <h1>VIVE FM ONLINE</h1>
-    
-    <div id="digitalClock" aria-label="Reloj digital" role="timer"></div>
-    
-    <p>Tu música favorita en vivo 24/7</p>
-
-    <audio id="radioPlayer" preload="none">
-      <!-- Cambia la URL aquí por la de tu streaming -->
-      <source src="https://stream.zeno.fm/ctv5k5brgpfvv" type="audio/mpeg" />
-      Tu navegador no soporta el elemento de audio.
-    </audio>
-
-    <div class="custom-player" role="region" aria-label="Reproductor de radio">
-      <button id="playPauseBtn" aria-label="Reproducir/Pausar">▶️</button>
-      <div class="progress-container" aria-label="Barra de progreso de reproducción">
-        <div id="progressBar"></div>
+<main>
+  <!-- NUEVO REPRODUCTOR -->
+  <section id="player" aria-label="Reproductor de música de VIVE FM">
+    <div id="player-screen" role="img/logo.jpg" aria-label="img/logo.jpg">
+      <div id="station-name">VIVE FM online</div>
+    </div>
+    <div id="player-controls">
+      <div id="buttons">
+        <button id="playBtn" class="control-btn" aria-label="Reproducir">
+          <!-- Icono Play -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <button id="pauseBtn" class="control-btn" aria-label="Pausar" disabled>
+          <!-- Icono Pause -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button id="stopBtn" class="control-btn" aria-label="Detener" disabled>
+          <!-- Icono Stop -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"/></svg>
+        </button>
       </div>
-    </div>   
-  </div>
+      <input type="range" id="seekBar" min="0" max="100" value="0" aria-label="Barra de progreso"/>
+      <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1" aria-label="Control de volumen" />
+    </div>
+    <audio id="audio" src="https://stream.zeno.fm/ctv5k5brgpfvv" preload="auto"></audio>
+  </section>
+
+  <section id="form-section">
+    <form id="participationForm" aria-label="Formulario de participación de VIVE FM">
+      <h2>Participa con VIVE FM Online</h2>
+
+      <label for="option">Seleccione una opción:</label>
+      <select name="option" id="option" required>
+        <option value="" disabled selected>-- Seleccione --</option>
+        <option value="programaEnVivo">Participar en un programa en vivo con un moderador</option>
+        <option value="ganarSaldo">Ganar saldo a tu teléfono móvil</option>
+        <option value="participarProgramas">Participar en programas de la emisora</option>
+        <option value="publicidad">Publicidad de tu negocio para transmitir en VIVE FM</option>
+      </select>
+
+      <label for="name">Nombre completo:</label>
+      <input type="text" id="name" name="name" placeholder="Tu nombre" required />
+
+      <label for="phone">Teléfono móvil:</label>
+      <input type="tel" id="phone" name="phone" placeholder="+56912345678" pattern="^\+?\d{7,15}$" required />
+
+      <label for="message">Mensaje / Comentarios:</label>
+      <textarea id="message" name="message" placeholder="Escribe aquí tu mensaje..." required></textarea>
+
+      <input type="submit" value="Enviar solicitud" />
+    </form>
+  </section>
+
+  <section id="confirmation" role="alertdialog" aria-live="polite" aria-modal="true">
+    <p>VIVE FM online te da la bienvenida a su plataforma digital y poder participar con nosotros.<br>Tu mensaje será enviado a dirección para validar tu solicitud.</p>
+    <button id="backBtn" aria-label="Volver al formulario">Volver al formulario</button>
+  </section>
+</main>
 
 <footer>
-  <p>© Derecho al Autor 2025</p>
+  VIVE FM online 2026
 </footer>
 
-  <script>
-    const radioPlayer = document.getElementById('radioPlayer');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const progressBar = document.getElementById('progressBar');
-    const progressContainer = document.querySelector('.progress-container');
+<script>
+  // Reloj digital
+  function updateClock() {
+    const clock = document.getElementById('clock');
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2,'0');
+    const m = now.getMinutes().toString().padStart(2,'0');
+    const s = now.getSeconds().toString().padStart(2,'0');
+    clock.textContent = `${h}:${m}:${s}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
 
-    playPauseBtn.addEventListener('click', () => {
-      if (radioPlayer.paused) {
-        radioPlayer.play();
-        playPauseBtn.textContent = '⏸️';
-      } else {
-        radioPlayer.pause();
-        playPauseBtn.textContent = '▶️';
-      }
-    });
+  // Reproductor audio
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('playBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const seekBar = document.getElementById('seekBar');
+  const volumeBar = document.getElementById('volumeBar');
 
-    radioPlayer.addEventListener('playing', () => {
-      playPauseBtn.textContent = '⏸️';
-    });
+  // Actualiza los botones y estado al reproducir
+  playBtn.addEventListener('click', () => {
+    audio.play();
+    playBtn.disabled = true;
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+  });
+  pauseBtn.addEventListener('click', () => {
+    audio.pause();
+    playBtn.disabled = false;
+    pauseBtn.disabled = true;
+  });
+  stopBtn.addEventListener('click', () => {
+    audio.pause();
+    audio.currentTime = 0;
+    playBtn.disabled = false;
+    pauseBtn.disabled = true;
+    stopBtn.disabled = true;
+    seekBar.value = 0;
+  });
 
-    radioPlayer.addEventListener('pause', () => {
-      playPauseBtn.textContent = '▶️';
-    });
+  // Actualizar barra de progreso mientras se reproduce
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    seekBar.max = audio.duration;
+    seekBar.value = audio.currentTime;
+  });
 
-    // Para streaming en vivo, simulamos barra animada
-    let animationFrame;
+  // Cambiar posición reproducción con barra
+  seekBar.addEventListener('input', () => {
+    audio.currentTime = seekBar.value;
+  });
 
-    function animateProgress() {
-      let width = parseFloat(progressBar.style.width) || 0;
-      width += 0.5;
-      if (width > 100) width = 0;
-      progressBar.style.width = width + '%';
-      animationFrame = requestAnimationFrame(animateProgress);
+  // Control volumen
+  volumeBar.addEventListener('input', () => {
+    audio.volume = volumeBar.value;
+  });
+
+
+  // Número WhatsApp fijo: +58 426 895 7207
+  const whatsappNumber = '584129000100';
+
+  // Formulario
+  const form = document.getElementById('participationForm');
+  const confirmationSection = document.getElementById('confirmation');
+  const formSection = document.getElementById('form-section');
+  const backBtn = document.getElementById('backBtn');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
     }
 
-    radioPlayer.addEventListener('play', () => {
-      animateProgress();
-    });
+    const option = form.option.value;
+    const name = form.name.value.trim();
+    const phone = form.phone.value.trim();
+    const message = form.message.value.trim();
 
-    radioPlayer.addEventListener('pause', () => {
-      cancelAnimationFrame(animationFrame);
-      progressBar.style.width = '0%';
-    });
+    // Guardar en localStorage
+    const submission = {
+      option,
+      name,
+      phone,
+      message,
+      date: new Date().toISOString()
+    };
+    let submissions = JSON.parse(localStorage.getItem('vivefm_submissions')) || [];
+    submissions.push(submission);
+    localStorage.setItem('vivefm_submissions', JSON.stringify(submissions));
 
-    // Click en barra para intentar saltar (no funcional en streaming en vivo)
-    progressContainer.addEventListener('click', (e) => {
-      if (!radioPlayer.duration) return;
-      const rect = progressContainer.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const width = rect.width;
-      const seekPercent = clickX / width;
-      radioPlayer.currentTime = seekPercent * radioPlayer.duration;
-    });
-    
-    function updateClock() {
-  const clock = document.getElementById('digitalClock');
-  const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const seconds = now.getSeconds().toString().padStart(2, '0');
-  clock.textContent = `${hours}:${minutes}:${seconds}`;
-}
+    const optionText = form.option.options[form.option.selectedIndex].text;
+    const whatsappMessage = `Nueva solicitud desde VIVE FM online:\n\n` +
+      `Opción: ${optionText}\n` +
+      `Nombre: ${name}\n` +
+      `Teléfono: ${phone}\n` +
+      `Mensaje: ${message}`;
 
-setInterval(updateClock, 1000);
-updateClock(); // para mostrar la hora al cargar
+    const whatsappUrl = `https://wa.me/whatsappNumber?text=${whatsappNumber}=${encodeURIComponent(whatsappMessage)}`;
+    window.open(whatsappUrl, '_blank');
 
-  </script>
-  
-  <a href="https://chat.whatsapp.com/JLIjsB9t6VG70JwjL5A0ai?mode=ac_t" target="_blank" rel="noopener" class="whatsapp-button" aria-label="Únete al grupo de WhatsApp de Vive FM Online">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="white" aria-hidden="true" focusable="<!--  -->false">
-    <path d="M20.52 3.48A11.82 11.82 0 0012 0C5.37 0 0 5.37 0 12a11.9 11.9 0 001.67 6L0 24l6-1.67A11.92 11.92 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.19-3.48-8.52zM12 21c-2.11 0-4.07-.7-5.63-1.9l-.4-.26-3.54.99.99-3.54-.26-.4A9.01 9.01 0 013 12c0-4.97 4.03-9 9-9s9 4.03 9 9-4.03 9-9 9zm5.26-6.92c-.28-.14-1.66-.82-1.92-.91-.26-.09-.45-.14-.64.14s-.73.9-.9 1.08c-.17.18-.34.2-.63.07-.28-.14-1.18-.43-2.25-1.39-.83-.74-1.39-1.65-1.56-1.93-.16-.28-.02-.43.12-.57.12-.12.28-.3.43-.45.14-.14.19-.25.28-.43.09-.17.05-.31-.02-.45-.07-.14-.63-1.52-.86-2.08-.23-.55-.46-.48-.64-.49-.17-.01-.37-.01-.56-.01-.19 0-.5.07-.76.37-.26.3-1 1-1 2.43s1.02 2.82 1.17 3.02c.14.19 2.02 3.08 4.9 4.32.68.29 1.21.46 1.62.59.68.22 1.3.19 1.79.12.55-.08 1.66-.68 1.9-1.34.24-.67.24-1.25.17-1.38-.07-.12-.26-.19-.54-.33z"/>
-  </svg>
-  Únete a WhatsApp
-</a>
+    formSection.style.display = 'none';
+    confirmationSection.style.display = 'block';
+
+    form.reset();
+  });
+
+  backBtn.addEventListener('click', () => {
+    confirmationSection.style.display = 'none';
+    formSection.style.display = 'block';
+  });
+</script>
 
 </body>
 </html>
