@@ -1,462 +1,1051 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>VIVE FM Online - Emisora Streaming</title>
-<style>
-  /* Reset básico */
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #ff416c, #ff4b2b);
-    color: #fff;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  header {
-    background-color: rgba(0,0,0,0.4);
-    padding: 10px 20px;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  #clock {
-    font-weight: 700;
-    font-size: 1.2rem;
-    font-family: "Courier New", Courier, monospace;
-  }
-  main {
-    flex: 1;
-    padding: 20px;
-    max-width: 720px;
-    margin: 0 auto 0 auto;
-    background: rgba(255,255,255,0.1);
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-  }
-
-  /* NUEVO REPRODUCTOR */
-  #player {
-    background: #1e1e1e;
-    border-radius: 12px;
-    padding: 0;
-    margin-bottom: 30px;
-    box-shadow: 0 0 20px #000;
-    max-width: 100%;
-    overflow: hidden;
-  }
-  #player-screen {
-    position: relative;
-    width: 100%;
-    height: 320px;
-    background: url('https://images.unsplash.com/photo-1464375117522-1311f0e8e8e0?auto=format&fit=crop&w=720&q=80') center center/cover no-repeat;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 20px;
-    box-shadow: inset 0 0 80px rgba(0,0,0,0.8);
-  }
-  #player-screen::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    pointer-events: none;
-  }
-  #player-screen > div {
-    position: relative;
-    z-index: 2;
-  }
-  #station-name {
-    font-size: 2.4rem;
-    font-weight: 900;
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
-    user-select: none;
-  }
-  /* Controles */
-  #player-controls {
-    background: #222;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 15px 20px;
-    gap: 15px;
-  }
-
-  /* Botones */
-  #buttons {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-  }
-  button.control-btn {
-    background-color: #ff4b2b;
-    border: none;
-    color: white;
-    font-size: 1.6rem;
-    padding: 12px 20px;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(255,75,43,0.7);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-  }
-  button.control-btn:hover:not(:disabled) {
-    background-color: #e03e22;
-    transform: scale(1.1);
-  }
-  button.control-btn:disabled {
-    background-color: #555;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  button.control-btn svg {
-    width: 26px;
-    height: 26px;
-  }
-
-  /* Barra progreso y volumen igual ancho */
-  #seekBar, #volumeBar {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    max-width: 100%;
-    height: 8px;
-    border-radius: 5px;
-    background: #555;
-    outline: none;
-    cursor: pointer;
-    box-shadow: 0 0 5px rgba(0,0,0,0.5) inset;
-  }
-  #seekBar::-webkit-slider-thumb,
-  #volumeBar::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #ff4b2b;
-    cursor: pointer;
-    box-shadow: 0 0 6px rgba(255,75,43,0.8);
-    transition: background-color 0.3s ease;
-    border: none;
-    margin-top: -5px;
-  }
-  #seekBar::-moz-range-thumb,
-  #volumeBar::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #ff4b2b;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 0 6px rgba(255,75,43,0.8);
-    transition: background-color 0.3s ease;
-  }
-
-  /* Formulario */
-  form {
-    background: rgba(0,0,0,0.3);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-  }
-  form h2 {
-    margin-bottom: 15px;
-    font-weight: 600;
-    text-align: center;
-    text-shadow: 1px 1px 2px #000;
-  }
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-  }
-  select, input[type="text"], input[type="tel"], textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    border: none;
-    font-size: 1rem;
-    font-family: inherit;
-    resize: vertical;
-  }
-  textarea {
-    min-height: 80px;
-  }
-  input[type="submit"] {
-    background-color: #ff4b2b;
-    border: none;
-    color: white;
-    font-weight: 700;
-    font-size: 1.1rem;
-    padding: 12px 0;
-    border-radius: 8px;
-    width: 100%;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  input[type="submit"]:hover {
-    background-color: #e03e22;
-  }
-  #confirmation {
-    display: none;
-    text-align: center;
-    padding: 40px 20px;
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #fff;
-    background: rgba(0,0,0,0.4);
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.7);
-  }
-  #confirmation p {
-    margin-bottom: 20px;
-  }
-  #confirmation button {
-    background-color: #0078d7;
-    border: none;
-    color: white;
-    padding: 10px 18px;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  #confirmation button:hover {
-    background-color: #005ea2;
-  }
-  footer {
-    background-color: rgba(0,0,0,0.5);
-    text-align: center;
-    padding: 15px 10px;
-    font-weight: 600;
-    font-size: 1rem;
-    color: #fff;
-    margin-top: auto;
-    user-select: none;
-  }
-  @media (max-width: 480px) {
-    #player-screen {
-      height: 220px;
-      padding: 15px;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vive FM Online - Siempre Contigo</title>
+  <meta name="description" content="Página oficial de Vive FM Online, noticias, radio streaming, concursos y más." />
+  <style>
+    /* Reset & base */
+    *, *::before, *::after {
+      box-sizing: border-box;
     }
-    #station-name {
-      font-size: 1.6rem;
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    #buttons {
-      gap: 20px;
+    a {
+      color: #0066ff;
+      text-decoration: none;
     }
-    button.control-btn {
-      width: 50px;
-      height: 50px;
-      font-size: 1.3rem;
+    a:hover, a:focus {
+      text-decoration: underline;
     }
-  }
-</style>
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Header */
+
+    header {
+      background: linear-gradient(90deg, #ff416c, #ff4b2b);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+    /* Logo */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .logo-container img {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      border: 2px solid #fff;
+      background: #fff;
+    }
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    /* Hamburger menu */
+    #menu-toggle {
+      display: none;
+    }
+    .menu-btn {
+      background: transparent;
+      border: none;
+      width: 32px;
+      height: 32px;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      padding: 0;
+      z-index: 1001;
+    }
+    .menu-btn span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    /* Animate hamburger to X when toggled */
+    #menu-toggle:checked + .menu-btn span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    #menu-toggle:checked + .menu-btn span:nth-child(2) {
+      opacity: 0;
+    }
+    #menu-toggle:checked + .menu-btn span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* Nav menu */
+    nav {
+      background: #fff;
+      position: absolute;
+      top: 100%;
+      right: 1rem;
+      width: 280px;
+      max-width: 90vw;
+      border-radius: 8px;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+      padding: 1rem;
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 1000;
+    }
+    #menu-toggle:checked ~ nav {
+      display: flex;
+    }
+    nav button, nav a {
+      background: #ff4b2b;
+      color: #fff;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      text-align: center;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    nav button:hover, nav a:hover {
+      background: #ff416c;
+    }
+
+    /* Program indicators */
+    .program-indicator {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #ffcc00;
+      color: #222;
+      font-weight: 700;
+      text-align: center;
+      padding: 0.4rem 0;
+      font-size: 0.9rem;
+      user-select: none;
+      z-index: 999;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .program-indicator.special {
+      background: #ff4b2b;
+      color: #fff;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 1rem auto 2rem;
+      padding: 0 1rem;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1rem;
+    }
+
+    /* Responsive grid */
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* News section */
+    section#news {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      overflow-y: auto;
+    }
+    section#news h2 {
+      margin-top: 0;
+      color: #ff4b2b;
+      font-weight: 700;
+      border-bottom: 3px solid #ff4b2b;
+      padding-bottom: 0.5rem;
+    }
+    article.news-item {
+      border-bottom: 1px solid #eee;
+      padding: 0.75rem 0;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    article.news-item:last-child {
+      border-bottom: none;
+    }
+    article.news-item img {
+      width: 120px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    article.news-item div.content {
+      flex: 1;
+    }
+    article.news-item h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.1rem;
+      color: #ff416c;
+    }
+    article.news-item p {
+      margin: 0 0 0.25rem;
+      line-height: 1.4;
+    }
+    article.news-item time {
+      font-size: 0.8rem;
+      color: #666;
+      user-select: none;
+    }
+
+    /* Sidebar */
+    aside {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Radio player container styled like Windows XP but modern */
+    .player-container {
+      background:
+        linear-gradient(145deg, #e0e7ff, #a3bffa);
+      border-radius: 12px;
+      box-shadow:
+        inset 3px 3px 5px #8a9fe3,
+        inset -3px -3px 5px #c8d4ff;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Radio logo */
+    .radio-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      border: 2px solid #4a69bd;
+      background: #e8f0fe;
+      box-shadow:
+        2px 2px 5px rgba(74,105,189,0.5);
+      object-fit: contain;
+    }
+
+    /* Player UI - inspired by Windows XP but colorful, modern */
+    .player-ui {
+      width: 100%;
+      max-width: 320px;
+      background: #4a69bd;
+      border-radius: 8px;
+      box-shadow:
+        3px 3px 8px #1e2b6f,
+        inset 1px 1px 0 #6c84e0;
+      padding: 0.75rem 1rem;
+      color: #edf2fc;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      user-select: none;
+      font-weight: 700;
+      font-family: monospace;
+      font-size: 1rem;
+    }
+    .player-ui button {
+      background: #a3bffa;
+      color: #364f9f;
+      font-weight: 700;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      box-shadow:
+        1px 1px 3px #2e3d7a;
+      transition: background-color 0.3s ease;
+      flex-shrink: 0;
+    }
+    .player-ui button:hover, .player-ui button:focus {
+      background: #ff4b2b;
+      color: #fff;
+      outline: none;
+      box-shadow:
+        0 0 10px #ff4b2b;
+    }
+    .player-ui .progress-bar {
+      flex: 1;
+      height: 8px;
+      background: #6c84e0;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+    .player-ui .progress-bar .progress {
+      background: #ff416c;
+      height: 100%;
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    /* Donate button below player */
+    .donate-btn {
+      margin-top: 0.5rem;
+      background: #ff4b2b;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      font-weight: 700;
+      border-radius: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px rgba(255,75,43,0.6);
+      user-select: none;
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+    }
+    .donate-btn:hover, .donate-btn:focus {
+      background: #ff416c;
+      outline: none;
+      box-shadow: 0 6px 18px rgba(255,65,108,0.8);
+    }
+    .donate-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: #fff;
+    }
+
+    /* Bottom buttons container */
+    .bottom-buttons {
+      margin: 1rem 0 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .bottom-buttons button {
+      background: #ff4b2b;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 30px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(255,75,43,0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background-color 0.3s ease;
+    }
+    .bottom-buttons button:hover, .bottom-buttons button:focus {
+      background: #ff416c;
+      outline: none;
+      box-shadow: 0 6px 18px rgba(255,65,108,0.8);
+    }
+    .bottom-buttons button svg {
+      width: 22px;
+      height: 22px;
+      fill: #fff;
+    }
+
+    /* Form container */
+    .contest-form-container {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      max-width: 480px;
+      margin: 0 auto 2rem;
+    }
+    .contest-form-container h3 {
+      margin-top: 0;
+      color: #ff4b2b;
+      font-weight: 700;
+      border-bottom: 3px solid #ff4b2b;
+      padding-bottom: 0.5rem;
+      user-select: none;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      user-select: none;
+    }
+    input, textarea {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1.5px solid #ccc;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      resize: vertical;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus {
+      border-color: #ff4b2b;
+      outline: none;
+      box-shadow: 0 0 6px #ff4b2b66;
+    }
+    .form-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+    .form-buttons button {
+      background: #ff4b2b;
+      color: #fff;
+      padding: 0.5rem 1.25rem;
+      font-weight: 700;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+    }
+    .form-buttons button:hover, .form-buttons button:focus {
+      background: #ff416c;
+      outline: none;
+    }
+
+    /* Footer */
+    footer {
+      background: #222;
+      color: #ddd;
+      text-align: center;
+      padding: 1rem 0.5rem;
+      user-select: none;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .social-icons {
+      display: flex;
+      gap: 1rem;
+    }
+    .social-icons a {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      filter: brightness(0) invert(1);
+      transition: filter 0.3s ease;
+    }
+    .social-icons a:hover, .social-icons a:focus {
+      filter: brightness(0) invert(0.7) sepia(1) saturate(4) hue-rotate(320deg);
+      outline: none;
+    }
+
+    /* Scrollbar for news section on desktop */
+    @media (min-width: 901px) {
+      section#news {
+        max-height: 600px;
+        overflow-y: auto;
+      }
+    }
+
+    /* Dark mode */
+    body.dark {
+      background: #121212;
+      color: #eee;
+    }
+    body.dark header {
+      background: linear-gradient(90deg, #3a3a3a, #222);
+      color: #ddd;
+    }
+    body.dark nav {
+      background: #222;
+      color: #eee;
+      box-shadow: 0 8px 15px rgba(255,255,255,0.1);
+    }
+    body.dark nav button, body.dark nav a {
+      background: #444;
+      color: #eee;
+    }
+    body.dark nav button:hover, body.dark nav a:hover {
+      background: #666;
+    }
+    body.dark .program-indicator {
+      background: #bb86fc;
+      color: #121212;
+    }
+    body.dark .program-indicator.special {
+      background: #3700b3;
+      color: #eee;
+    }
+    body.dark main {
+      background: #181818;
+    }
+    body.dark section#news {
+      background: #222;
+      color: #ddd;
+      border-color: #444;
+    }
+    body.dark article.news-item {
+      border-color: #444;
+    }
+    body.dark .player-container {
+      background: linear-gradient(145deg, #22252a, #3a3f4b);
+      box-shadow:
+        inset 3px 3px 5px #141821,
+        inset -3px -3px 5px #4e5573;
+    }
+    body.dark .player-ui {
+      background: #3a3f4b;
+      color: #ddd;
+      box-shadow:
+        3px 3px 8px #22262e,
+        inset 1px 1px 0 #5a6177;
+    }
+    body.dark .player-ui button {
+      background: #5a6177;
+      color: #ddd;
+      box-shadow:
+        1px 1px 3px #22262e;
+    }
+    body.dark .player-ui button:hover, body.dark .player-ui button:focus {
+      background: #bb86fc;
+      color: #121212;
+      box-shadow: 0 0 10px #bb86fc;
+    }
+    body.dark .donate-btn {
+      background: #bb86fc;
+      color: #121212;
+      box-shadow: 0 4px 12px rgba(187,134,252,0.7);
+    }
+    body.dark .donate-btn:hover, body.dark .donate-btn:focus {
+      background: #9a63cc;
+      box-shadow: 0 6px 18px rgba(154,99,204,0.8);
+    }
+    body.dark .bottom-buttons button {
+      background: #bb86fc;
+      color: #121212;
+      box-shadow: 0 4px 12px rgba(187,134,252,0.7);
+    }
+    body.dark .bottom-buttons button:hover, body.dark .bottom-buttons button:focus {
+      background: #9a63cc;
+      box-shadow: 0 6px 18px rgba(154,99,204,0.8);
+    }
+    body.dark .contest-form-container {
+      background: #222;
+      color: #ddd;
+      box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+    }
+    body.dark input, body.dark textarea {
+      background: #333      ;
+      border: 1.5px solid #555;
+      color: #ddd;
+    }
+    body.dark input:focus, body.dark textarea:focus {
+      border-color: #bb86fc;
+      box-shadow: 0 0 6px #bb86fc99;
+      outline: none;
+    }
+    body.dark footer {
+      background: #121212;
+      color: #bbb;
+    }
+    body.dark .social-icons a {
+      filter: brightness(0) invert(0.8);
+    }
+    body.dark .social-icons a:hover, body.dark .social-icons a:focus {
+      filter: brightness(0) invert(0.6) sepia(1) saturate(4) hue-rotate(260deg);
+    }
+
+    /* Accessibility focus */
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid #ff4b2b;
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 <body>
-
-<header>
-  <div>VIVE FM Online</div>
-  <div id="clock">00:00:00</div>
-</header>
-
-<main>
-  <!-- NUEVO REPRODUCTOR -->
-  <section id="player" aria-label="Reproductor de música de VIVE FM">
-    <div id="player-screen" role="img/logo.jpg" aria-label="img/logo.jpg">
-      <div id="station-name">VIVE FM online</div>
+  <!-- Header with logo, menu and program indicator -->
+  <header>
+    <div class="logo-container" aria-label="Logo de Vive FM Online">
+      <!-- Placeholder logo: replace src with your logo path -->
+      <img src="img/vive.jpg" alt="Logo de Vive FM Online" class="radio-logo" />
+      <span class="logo-text">Vive FM Online</span>
     </div>
-    <div id="player-controls">
-      <div id="buttons">
-        <button id="playBtn" class="control-btn" aria-label="Reproducir">
-          <!-- Icono Play -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        </button>
-        <button id="pauseBtn" class="control-btn" aria-label="Pausar" disabled>
-          <!-- Icono Pause -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-        </button>
-        <button id="stopBtn" class="control-btn" aria-label="Detener" disabled>
-          <!-- Icono Stop -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"/></svg>
-        </button>
+
+    <!-- Program Indicator (hidden by default, displayed dynamically) -->
+    <div id="program-indicator" class="program-indicator" role="status" aria-live="polite" style="display:none;">
+      <!-- Dynamic program info will appear here -->
+    </div>
+
+    <!-- Hamburger Menu -->
+    <input type="checkbox" id="menu-toggle" aria-label="Abrir menú de navegación" />
+    <label for="menu-toggle" class="menu-btn" aria-haspopup="true" aria-expanded="false" aria-controls="menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </label>
+
+    <nav id="menu" aria-label="Menú principal">
+      <button id="darkModeToggle" type="button" aria-pressed="false">Modo Oscuro</button>
+      <a href="https://chat.whatsapp.com/JLIjsB9t6VG70JwjL5A0ai?mode=gi_t" target="_blank" rel="noopener" aria-label="Enviar mensaje por WhatsApp a la emisora">Enviar mensaje WhatsApp</a>
+      <a href="#ayuda" role="button" id="helpBtn">Ayuda</a>
+      <button id="statsBtn" type="button">Estadísticas de la emisora</button>
+      <button id="shareBtn" type="button">Compartir enlace</button>
+      <div id="streamingUsers" aria-live="polite" style="margin-top: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+        Usuarios conectados: 0
       </div>
-      <input type="range" id="seekBar" min="0" max="100" value="0" aria-label="Barra de progreso"/>
-      <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1" aria-label="Control de volumen" />
-    </div>
-    <audio id="audio" src="https://stream.zeno.fm/ctv5k5brgpfvv" preload="auto"></audio>
-  </section>
+    </nav>
+  </header>
+<p>
+   <!-- Sidebar with radio player and donation button -->
+    <aside>
+      <section aria-label="Reproductor de radio Vive FM Online">
+        <div class="player-container" role="region" aria-live="polite" aria-label="Reproductor de radio">
+          <img src="img/vive.jpg" alt="Logo de la emisora Vive FM Online" class="radio-logo" />
+          <div class="player-ui">
+            <button id="playPauseBtn" aria-label="Reproducir radio" title="Reproducir">
+              ▶️
+            </button>
+            <div class="progress-bar" id="progressBar" aria-label="Barra de progreso del streaming" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="progress"></div>
+            </div>
+            <span id="statusText" aria-live="polite" aria-atomic="true" style="min-width: 60px; text-align:center;">Detenido</span>
+          </div>
+        </div>
+     
+     
+  <Center>   
+     
+        <a href="https://chat.whatsapp.com/JLIjsB9t6VG70JwjL5A0ai?mode=gi_t" target="_blank" rel="noopener" class="donate-btn" aria-label="Donar a la emisora vía WhatsApp">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+          Donar
+        </a>
+      </section>
+    </aside>
+  </main>
 
-  <section id="form-section">
-    <form id="participationForm" aria-label="Formulario de participación de VIVE FM">
-      <h2>Participa con VIVE FM Online</h2>
+  <!-- Bottom buttons -->
+  <div class="bottom-buttons" role="region" aria-label="Acciones para donar y participar">
+    <button id="donateStreamingBtn" aria-label="Donar al streaming vía WhatsApp">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+      </svg>
+      Donar al Streaming
+    </button>
+    <button id="participateBtn" aria-label="Participar en programas de la radio vía WhatsApp">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+      </svg>
+      Participar en Programas
+    </button>
+  </div>
+  
 
-      <label for="option">Seleccione una opción:</label>
-      <select name="option" id="option" required>
-        <option value="" disabled selected>-- Seleccione --</option>
-        <option value="programaEnVivo">Participar en un programa en vivo con un moderador</option>
-        <option value="ganarSaldo">Ganar saldo a tu teléfono móvil</option>
-        <option value="participarProgramas">Participar en programas de la emisora</option>
-        <option value="publicidad">Publicidad de tu negocio para transmitir en VIVE FM</option>
-      </select>
 
-      <label for="name">Nombre completo:</label>
-      <input type="text" id="name" name="name" placeholder="Tu nombre" required />
 
-      <label for="phone">Teléfono móvil:</label>
-      <input type="tel" id="phone" name="phone" placeholder="+56912345678" pattern="^\+?\d{7,15}$" required />
+  <main>
+    <!-- News Section -->
+    <section id="news" aria-label="Noticias nacionales, internacionales y regionales">
+      <h2>Publicación</h2>
+      <!-- Sample news items -->
+      <article class="news-item" tabindex="0">
+        <img src="img/vive.jpg" />
+        <div class="content">
+          <h3>Introducción: Emisora online vive fm</h3>
+          <p> <li>Bienvenidos a Vive FM, tu emisora de radio online que siempre está contigo. Desde 2019, hemos trabajado con mucha dedicación para ofrecerles una programación variada y de calidad, creada especialmente para nuestra querida audiencia. 
+</p>
+          <time datetime="2025-06-10T08:30">16 octubre 2025</time>
+        </div>
+      </article>
+      <article class="news-item" tabindex="0">
+        <img src="img/proyecto.jpg" alt="Imagen noticia internacional" />
+        <div class="content">
+          <h3>Orquesta: Proyecto Elian</h3>
+          <p><li>¡Orquesta Proyecto Elian está listo para animar tus eventos! Disponible para bodas, eventos cristianos y presentaciones en vivo. Contáctanos para llevar música de calidad a tu celebración..</p>
+          <time datetime="2024-06-09T17:00">9 septiembre 2025</time>
+        </div>
+      </article>
+      <article class="news-item" tabindex="0">
+        <img src="img/giro.jpg" alt="Imagen noticia regional" />
+        <div class="content">
+          <h3>Periódico Giro: El círculo de la información veraz por el periodista Israel Basanta</h3>
+          <p><li>Giro el círculo de la información veraz. Noticias regionales, nacionales e internacionales para mantenerte siempre bien informado. ¡Sintoniza con la verdad!.</p>
+          <time datetime="2024-06-08T12:00">18 diciembre 2025</time>
+        </div>
+      </article>
+    </section>
 
-      <label for="message">Mensaje / Comentarios:</label>
-      <textarea id="message" name="message" placeholder="Escribe aquí tu mensaje..." required></textarea>
+ 
+ 
+ 
+  <!-- Contest form -->
+  <section class="contest-form-container" aria-labelledby="contestTitle">
+    <h3 id="contestTitle">Formulario Concurso Vive FM</h3>
+    <form id="contestForm" novalidate>
+      <label for="nameInput">Nombre completo</label>
+      <input type="text" id="nameInput" name="name" required aria-required="true" placeholder="Tu nombre" autocomplete="name" />
 
-      <input type="submit" value="Enviar solicitud" />
+      <label for="phoneInput">Número de teléfono (WhatsApp)</label>
+      <input type="tel" id="phoneInput" name="phone" required aria-required="true" placeholder="+51 912 345 678" pattern="^\+?\d{7,15}$" autocomplete="tel" />
+
+      <label for="messageInput">Mensaje / Comentario</label>
+      <textarea id="messageInput" name="message" rows="3" placeholder="Escribe tu mensaje para el concurso"></textarea>
+
+      <div class="form-buttons">
+        <button type="submit" aria-label="Enviar formulario de concurso">Enviar</button>
+        <button type="reset" aria-label="Resetear formulario de concurso">Resetear</button>
+      </div>
     </form>
   </section>
 
-  <section id="confirmation" role="alertdialog" aria-live="polite" aria-modal="true">
-    <p>VIVE FM online te da la bienvenida a su plataforma digital y poder participar con nosotros.<br>Tu mensaje será enviado a dirección para validar tu solicitud.</p>
-    <button id="backBtn" aria-label="Volver al formulario">Volver al formulario</button>
-  </section>
-</main>
+  <!-- Footer -->
+  <footer>
+    <div>© 2024 Vive FM Online - Siempre Contigo</div>
+    <div class="social-icons" role="list" aria-label="Redes sociales de Vive FM Online">
+      <a href="https://facebook.com/vivefmonline" target="_blank" rel="noopener" aria-label="Facebook Vive FM Online" role="listitem">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="24" height="24">
+          <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 5 3.66 9.13 8.44 9.88v-6.99H7.9v-2.89h2.54V9.83c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.25c-1.23 0-1.62.77-1.62 1.56v1.87h2.77l-.44 2.89h-2.33v6.99C18.34 21.13 22 17 22 12z" />
+        </svg>
+      </a>
+      <a href="https://wa.me/1234567890" target="_blank" rel="noopener" aria-label="WhatsApp Vive FM Online" role="listitem">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="24" height="24">
+          <path d="M20.52 3.48A11.94 11.94 0 0012 0C5.37 0 .03 5.36 0 12A11.95 11.95 0 007.31 21.07l-1.94 7.11 7.31-1.93A11.94 11.94 0 0024 12c0-3.2-1.26-6.22-3.48-8.52zM12 19.9a7.92 7.92 0 01-4.57-1.43l-.33-.22-2.72.72.72-2.65-.22-.33a7.92 7.92 0 011.43-4.57 7.91 7.91 0 0113.57 0 7.91 7.91 0 01-1.43 9.36 7.92 7.92 0 01-4.57 1.42zm3.58-6.14l-1.07 1.07a.67.67 0 01-.95 0l-1.2-1.2a.67.67 0 010-.95l1.07-1.07a.67.67 0 01.95 0l1.2 1.2a.67.67 0 010 .95z" />
+        </svg>
+      </a>
+      <a href="https://instagram.com/vivefmonline" target="_blank" rel="noopener" aria-label="Instagram Vive FM Online" role="listitem">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="24" height="24">
+          <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2a3 3 0 013 3v10a3 3 0 01-3 3H7a3 3 0 01-3-3V7a3 3 0 013-3h10zm-5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 010 6 3 3 0 010-6zm4.5-.5a1 1 0 100 2 1 1 0 000-2z" />
+        </svg>
+      </a>
+      <a href="https://tiktok.com/@vivefmonline" target="_blank" rel="noopener" aria-label="TikTok Vive FM Online" role="listitem">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="24" height="24">
+          <path d="M9 3h3.5a4.5 4.5 0 004.5 4.5v3a7.5 7.5 0 01-7.5-7.5zm7.5 10.5a7.5 7.5 0 11-7.5-7.5v3a4.5 4.5 0 004.5 4.5h3v-3z"/>
+        </svg>
+      </a>
+    </div>
+  </footer>
 
-<footer>
-  VIVE FM online 2026
-</footer>
+  <script>
+    // JavaScript code for interactivity and storage
 
-<script>
-  // Reloj digital
-  function updateClock() {
-    const clock = document.getElementById('clock');
-    const now = new Date();
-    const h = now.getHours().toString().padStart(2,'0');
-    const m = now.getMinutes().toString().padStart(2,'0');
-    const s = now.getSeconds().toString().padStart(2,'0');
-    clock.textContent = `${h}:${m}:${s}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
+    (() => {
+      // Constants for streaming URL and WhatsApp group link
+      const STREAMING_URL = "https://stream.zeno.fm/ctv5k5brgpfvv"; // Replace with your streaming URL
+      const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/JLIjsB9t6VG70JwjL5A0ai?mode=gi_t"; // Replace with your WhatsApp group link
+      const WHATSAPP_CONTACT_LINK = "https://chat.whatsapp.com/JLIjsB9t6VG70JwjL5A0ai?mode=gi_t"; // Replace with your contact phone
 
-  // Reproductor audio
-  const audio = document.getElementById('audio');
-  const playBtn = document.getElementById('playBtn');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const stopBtn = document.getElementById('stopBtn');
-  const seekBar = document.getElementById('seekBar');
-  const volumeBar = document.getElementById('volumeBar');
+      // Elements
+      const playPauseBtn = document.getElementById("playPauseBtn");
+      const progressBar = document.getElementById("progressBar");
+      const progress = progressBar.querySelector(".progress");
+      const statusText = document.getElementById("statusText");
+      const donateBtn = document.querySelector(".donate-btn");
+      const donateStreamingBtn = document.getElementById("donateStreamingBtn");
+      const participateBtn = document.getElementById("participateBtn");
+      const darkModeToggle = document.getElementById("darkModeToggle");
+      const menuToggle = document.getElementById("menu-toggle");
+      const programIndicator = document.getElementById("program-indicator");
+      const streamingUsersDiv = document.getElementById("streamingUsers");
+      const contestForm = document.getElementById("contestForm");
+      const helpBtn = document.getElementById("helpBtn");
+      const statsBtn = document.getElementById("statsBtn");
+      const shareBtn = document.getElementById("shareBtn");
 
-  // Actualiza los botones y estado al reproducir
-  playBtn.addEventListener('click', () => {
-    audio.play();
-    playBtn.disabled = true;
-    pauseBtn.disabled = false;
-    stopBtn.disabled = false;
-  });
-  pauseBtn.addEventListener('click', () => {
-    audio.pause();
-    playBtn.disabled = false;
-    pauseBtn.disabled = true;
-  });
-  stopBtn.addEventListener('click', () => {
-    audio.pause();
-    audio.currentTime = 0;
-    playBtn.disabled = false;
-    pauseBtn.disabled = true;
-    stopBtn.disabled = true;
-    seekBar.value = 0;
-  });
+      // Audio object for streaming
+      let audio = new Audio(STREAMING_URL);
+      audio.preload = "none";
+      audio.crossOrigin = "anonymous";
+      audio.volume = 0.7;
 
-  // Actualizar barra de progreso mientras se reproduce
-  audio.addEventListener('timeupdate', () => {
-    if (!audio.duration) return;
-    seekBar.max = audio.duration;
-    seekBar.value = audio.currentTime;
-  });
+      let isPlaying = false;
 
-  // Cambiar posición reproducción con barra
-  seekBar.addEventListener('input', () => {
-    audio.currentTime = seekBar.value;
-  });
+      // Play/pause toggle
+      function togglePlay() {
+        if (isPlaying) {
+          audio.pause();
+        } else {
+          audio.play().catch(e => {
+            alert("No se puede reproducir el streaming. Por favor, revisa tu conexión.");
+            console.error("Error al reproducir:", e);
+          });
+        }
+      }
 
-  // Control volumen
-  volumeBar.addEventListener('input', () => {
-    audio.volume = volumeBar.value;
-  });
+      playPauseBtn.addEventListener("click", () => {
+        togglePlay();
+      });
 
+      audio.addEventListener("play", () => {
+        isPlaying = true;
+        playPauseBtn.textContent = "⏸️";
+        playPauseBtn.setAttribute("aria-label", "Pausar radio");
+        statusText.textContent = "En directo";
+      });
 
-  // Número WhatsApp fijo: +58 426 895 7207
-  const whatsappNumber = '584129000100';
+      audio.addEventListener("pause", () => {
+        isPlaying = false;
+        playPauseBtn.textContent = "▶️";
+        playPauseBtn.setAttribute("aria-label", "Reproducir radio");
+        statusText.textContent = "Detenido";
+        progress.style.width = "0%";
+        progressBar.setAttribute("aria-valuenow", "0");
+      });
 
-  // Formulario
-  const form = document.getElementById('participationForm');
-  const confirmationSection = document.getElementById('confirmation');
-  const formSection = document.getElementById('form-section');
-  const backBtn = document.getElementById('backBtn');
+      // Streaming progress simulation (since streaming audio doesn't have duration)
+           // We'll simulate progress bar moving while playing.
+      let progressValue = 0;
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
+      function startProgress() {
+        if (progressInterval) return; // prevent multiple intervals
+        progressValue = 0;
+        progress.style.width = "0%";
+        progressBar.setAttribute("aria-valuenow", progressValue);
 
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
+        progressInterval = setInterval(() => {
+          progressValue += 1;
+          if (progressValue > 100) progressValue = 0;
+          progress.style.width = progressValue + "%";
+          progressBar.setAttribute("aria-valuenow", progressValue);
+        }, 200); // progress updates every 200ms (~20 seconds for full bar)
+      }
 
-    const option = form.option.value;
-    const name = form.name.value.trim();
-    const phone = form.phone.value.trim();
-    const message = form.message.value.trim();
+      function stopProgress() {
+        clearInterval(progressInterval);
+        progressInterval = null;
+        progressValue = 0;
+        progress.style.width = "0%";
+        progressBar.setAttribute("aria-valuenow", "0");
+      }
 
-    // Guardar en localStorage
-    const submission = {
-      option,
-      name,
-      phone,
-      message,
-      date: new Date().toISOString()
-    };
-    let submissions = JSON.parse(localStorage.getItem('vivefm_submissions')) || [];
-    submissions.push(submission);
-    localStorage.setItem('vivefm_submissions', JSON.stringify(submissions));
+      audio.addEventListener("play", startProgress);
+      audio.addEventListener("pause", stopProgress);
+      audio.addEventListener("ended", stopProgress);
+      audio.addEventListener("error", () => {
+        alert("Error en el streaming. Intenta recargar la página.");
+        stopProgress();
+        audio.pause();
+      });
 
-    const optionText = form.option.options[form.option.selectedIndex].text;
-    const whatsappMessage = `Nueva solicitud desde VIVE FM online:\n\n` +
-      `Opción: ${optionText}\n` +
-      `Nombre: ${name}\n` +
-      `Teléfono: ${phone}\n` +
-      `Mensaje: ${message}`;
+      // Dark mode toggle
+      function setDarkMode(enabled) {
+        if (enabled) {
+          document.body.classList.add("dark");
+          darkModeToggle.textContent = "Modo Claro";
+          darkModeToggle.setAttribute("aria-pressed", "true");
+          localStorage.setItem("darkMode", "true");
+        } else {
+          document.body.classList.remove("dark");
+          darkModeToggle.textContent = "Modo Oscuro";
+          darkModeToggle.setAttribute("aria-pressed", "false");
+          localStorage.setItem("darkMode", "false");
+        }
+      }
 
-    const whatsappUrl = `https://wa.me/whatsappNumber?text=${whatsappNumber}=${encodeURIComponent(whatsappMessage)}`;
-    window.open(whatsappUrl, '_blank');
+      // Load dark mode preference
+      const savedDarkMode = localStorage.getItem("darkMode");
+      if (savedDarkMode === "true") {
+        setDarkMode(true);
+      } else {
+        setDarkMode(false);
+      }
 
-    formSection.style.display = 'none';
-    confirmationSection.style.display = 'block';
+      darkModeToggle.addEventListener("click", () => {
+        const isDark = document.body.classList.contains("dark");
+        setDarkMode(!isDark);
+      });
 
-    form.reset();
-  });
+      // Donate buttons open WhatsApp chat
+      donateBtn.addEventListener("click", () => {
+        window.open(WHATSAPP_CONTACT_LINK, "_blank", "noopener");
+      });
+      donateStreamingBtn.addEventListener("click", () => {
+        window.open(WHATSAPP_CONTACT_LINK, "_blank", "noopener");
+      });
 
-  backBtn.addEventListener('click', () => {
-    confirmationSection.style.display = 'none';
-    formSection.style.display = 'block';
-  });
-</script>
+      // Participate button opens WhatsApp group link
+      participateBtn.addEventListener("click", () => {
+        window.open(WHATSAPP_GROUP_LINK, "_blank", "noopener");
+      });
 
-</body>
-</html>
+      // Help button shows alert with info (can be enhanced)
+      helpBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("Para enviar mensajes o participar, utiliza los botones correspondientes o escribe a nuestro WhatsApp.");
+      });
+
+      // Stats button example alert (replace with real stats or modal)
+      statsBtn.addEventListener("click", () => {
+        alert("Actualmente hay " + streamingUsersDiv.textContent.split(": ")[1] + " usuarios conectados.");
+      });
+
+      // Share button uses Web Share API if available
+      shareBtn.addEventListener("click", async () => {
+        const shareData = {
+          title: "Vive FM Online",
+          text: "Escucha Vive FM Online - Siempre Contigo",
+          url: window.location.href
+        };
+        if (navigator.share) {
+          try {
+            await navigator.share(shareData);
+          } catch (err) {
+            alert("No se pudo compartir: " + err);
+          }
+        } else {
+          // fallback: copy URL to clipboard
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+            alert("Enlace copiado al portapapeles.");
+          } catch {
+            alert("No se pudo copiar el enlace. Por favor, copia manualmente: " + window.location.href);
+          }
+        }
+      });
+
+      // Contest form validation and submission
+      contestForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        // Simple validation
+        const name = contestForm.name.value.trim();
+        const phone = contestForm.phone.value.trim();
+        const message = contestForm.message.value.trim();
+
+        const phonePattern = /^\+?\d{7,15}$/;
+
+        if (!name) {
+          alert("Por favor, ingresa tu nombre completo.");
+          contestForm.name.focus();
+          return;
+        }
+        if (!phonePattern.test(phone)) {
+          alert("Por favor, ingresa un número de teléfono válido con código de país.");
+          contestForm.phone.focus();
+          return;
+        }
+
+        // Save to localStorage
+        const submission = {
+          name,
+          phone,
+          message,
+          date: new Date().toISOString()
+        };
+
+        let submissions = JSON.parse(localStorage.getItem("contestSubmissions")) || [];
+        submissions.push(submission);
+        localStorage.setItem("contestSubmissions", JSON.stringify(submissions));
+
+        alert("Gracias por participar en el concurso. ¡Buena suerte!");
+
+        contestForm.reset();
+      });
+
+      // Contest form reset button confirmation
+      contestForm.addEventListener("reset", (e) => {
+        if (!confirm("¿Estás seguro que deseas resetear el formulario?")) {
+          e.preventDefault();
+        }
+      });
+
+      // Program indicator example (dynamic update)
+      function updateProgramIndicator() {
+        // Example schedule (static)
+        const programs = [
+          {start: "06:00", end: "09:00", name: "Buenos Días Vive FM"},
+          {stop: "09:00", end: "12:00", name: "Música y Noticias"},
+          {stop: "12:00", end: "15:00", name: "Tardes con Vive FM"},
+          {stop: "15:00", end: "18:00", name: "Programas Especiales"},
+          {stop: "18:00", end: "21:00", name: "Noche de Música"},
+          {stop: "0:00", end: "0:00", name: "Vive FM Nocturno"}
+        ];
+
+        const now = new Date();
+        const nowTime = now.getHours() * 60 + now.getMinutes();
+
+        const currentProgram = programs.find(p => {
+          let [startH, startM] = p.start.split(":").map(Number);
+          let [endH, endM] = p.end.split(":").map(Number);
+          let start = startH * 60 + startM;
+          let end = endH * 60 + endM;
+
+          if (end <= start) {
+            // crosses midnight
+            return nowTime >= start || nowTime < end;
+          }
+          return nowTime >= start && nowTime < end;
+        });
+
+        if (currentProgram) {
+          programIndicator.style.display = "block";
+          programIndicator.textContent = `Programa actual: ${currentProgram.name}`;
+        } else {
+          programIndicator.style.display = "none";
+          programIndicator.textContent = "";
+        }
+      }
+
+      updateProgramIndicator();
+      setInterval(updateProgramIndicator, 60000); // update every minute
+
+      // Streaming users count simulation (replace with real API if available)
+      function updateStreamingUsers() {
+        // Simulate between 50 and 200 users
+        const users = Math.floor(Math.random() * 150) + 50;
+        streamingUsersDiv.textContent = `Usuarios conectados: ${users}`;
+      }
+
+      updateStreamingUsers();
+      setInterval(updateStreamingUsers, 15000); // update every 15 seconds
+
+      // Accessibility: Update aria-expanded on menu toggle
+      menuToggle.addEventListener("change", () => {
+        const expanded = menuToggle.checked;
+        document.querySelector(".menu-btn").setAttribute("aria-expanded", expanded.toString());
+      });
+
+      // Keyboard navigation for progress bar (slider)
+      progressBar.addEventListener("keydown", (e) => {
+        if (!isPlaying) return; // no interaction if not playing
+        if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+          e.preventDefault();
+          progressValue = Math.min(100, progressValue + 5);
+          progress.style.width = progressValue + "%";
+          progressBar.setAttribute("aria-valuenow", progressValue);
+        } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+          e.preventDefault();
+          progressValue = Math.max(0, progressValue - 5);
+          progress.style.width = progressValue + "%";
+          progressBar.setAttribute("aria-valuenow", progressValue);
+        }
+      });
+
+    })();
+    </script>
+    </body>
+    </HTML>
